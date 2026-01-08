@@ -12,6 +12,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ProfileProvider, useProfiles } from "./lib/profiles";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -56,11 +57,67 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="pb-24">
-        <Outlet />
+    <ProfileProvider>
+      <div className="min-h-screen bg-slate-950 text-slate-100">
+        <TopBar />
+        <div className="pb-24">
+          <Outlet />
+        </div>
+        <BottomNav />
       </div>
-      <BottomNav />
+    </ProfileProvider>
+  );
+}
+
+function TopBar() {
+  const { profiles, currentProfileId, setCurrentProfileId, createProfile } = useProfiles();
+
+  async function handleCreate() {
+    const name = window.prompt("Profile name?");
+    if (!name) return;
+    try {
+      await createProfile(name);
+    } catch (err) {
+      console.error(err);
+      window.alert("Could not create profile");
+    }
+  }
+
+  return (
+    <div className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 px-4 py-3 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 text-sm">
+        <div className="flex items-center gap-2 text-slate-300">
+          <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Profile</span>
+          <select
+            data-testid="profile-select"
+            value={currentProfileId ?? ""}
+            onChange={(e) => setCurrentProfileId(e.target.value)}
+            className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+            disabled={!profiles.length}
+          >
+            {profiles.length === 0 ? <option value="">No profiles</option> : null}
+            {profiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            data-testid="profile-new"
+            onClick={handleCreate}
+            className="rounded-lg border border-emerald-700 bg-emerald-900/60 px-3 py-2 text-emerald-100 hover:border-emerald-500"
+          >
+            New
+          </button>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-slate-400">
+          <span className="pill bg-emerald-500/15 text-emerald-300">Library</span>
+          <a href="/settings" className="underline decoration-emerald-400 underline-offset-4">
+            Settings
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

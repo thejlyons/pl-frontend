@@ -3,6 +3,7 @@ import { Link, useLoaderData } from "react-router";
 
 import { apiBase, fetchJSON } from "../lib/api";
 import { Card, OutlineButton, PageHeader } from "../lib/ui";
+import { useProfiles } from "../lib/profiles";
 import type { ReviewItem } from "./garden";
 
 type LoaderData = {
@@ -12,17 +13,12 @@ type LoaderData = {
 
 export async function loader() {
   const base = apiBase();
-  try {
-    const items = await fetchJSON<ReviewItem[]>(`${base}/review/queue`);
-    return { items, apiBase: base } satisfies LoaderData;
-  } catch (error) {
-    console.error("Failed to load review queue:", error);
-    return { items: [], apiBase: base } satisfies LoaderData;
-  }
+  return { items: [], apiBase: base } satisfies LoaderData;
 }
 
 export default function ReviewPlayer() {
   const data = useLoaderData<typeof loader>();
+  const { currentProfileId } = useProfiles();
   const [queue, setQueue] = useState<ReviewItem[]>(data.items ?? []);
   const [showAnswer, setShowAnswer] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState("");
@@ -32,6 +28,14 @@ export default function ReviewPlayer() {
 
   const current = queue[0];
   const isMedia = current?.input_type?.toLowerCase() === "image";
+
+  useEffect(() => {
+    if (!currentProfileId) return;
+    setQueue([]);
+    void fetchJSON<ReviewItem[]>(`${data.apiBase}/review/queue?profile_id=${currentProfileId}`)
+      .then((items) => setQueue(items ?? []))
+      .catch(() => setQueue([]));
+  }, [data.apiBase, currentProfileId]);
 
   useEffect(() => {
     setShowAnswer(false);
@@ -48,7 +52,7 @@ export default function ReviewPlayer() {
       await fetchJSON(`${data.apiBase}/facts/${current.id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating }),
+        body: JSON.stringify({ rating, profile_id: currentProfileId }),
       });
       setQueue((prev) => prev.slice(1));
       setShowAnswer(false);
@@ -79,6 +83,14 @@ export default function ReviewPlayer() {
       setResult("incorrect");
       setShowAnswer(true);
     }
+  }
+
+  if (!currentProfileId) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-4 pb-12 pt-6 text-slate-100">
+        <Card className="w-full p-6 text-center">Select or create a profile to start reviewing.</Card>
+      </main>
+    );
   }
 
   if (!current) {

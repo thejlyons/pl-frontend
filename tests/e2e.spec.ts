@@ -1,13 +1,30 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type APIRequestContext, type Page } from "@playwright/test";
 
 const now = Date.now();
+const apiBase = process.env.API_BASE_URL ?? "http://localhost:18080";
 const collectionName = `Collection ${now}`;
 const conceptName = `Concept ${now}`;
 const factKey = `Key ${now}`;
 const factValue = `Value ${now}`;
 
-test("user creates a concept and sees it in UI and queue", async ({ page }) => {
+async function ensureProfile(api: APIRequestContext) {
+  const res = await api.get(`${apiBase}/profiles`);
+  expect(res.ok()).toBeTruthy();
+  const list = (await res.json()) as Array<{ id: string; name: string }>;
+  if (Array.isArray(list) && list.length > 0) {
+    return list[0];
+  }
+  const created = await api.post(`${apiBase}/profiles`, {
+    data: { name: `Tester ${Date.now()}` },
+  });
+  expect(created.ok()).toBeTruthy();
+  return (await created.json()) as { id: string; name: string };
+}
+
+test("user creates a concept and sees it in UI and queue", async ({ page, request }) => {
+  const profile = await ensureProfile(request);
   await page.goto("/");
+  await page.getByTestId("profile-select").selectOption(profile.id);
 
   await page.getByTestId("collection-name").fill(collectionName);
   await page.getByTestId("submit-collection").click();

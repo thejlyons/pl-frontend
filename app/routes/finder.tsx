@@ -3,6 +3,7 @@ import { Link, useLoaderData } from "react-router";
 
 import { apiBase, fetchJSON } from "../lib/api";
 import { Card, PageHeader } from "../lib/ui";
+import { useProfiles } from "../lib/profiles";
 
 export type Collection = {
   id: string;
@@ -64,6 +65,7 @@ export default function Finder() {
   const data = useLoaderData<typeof loader>();
   const initialCollections = data.collections ?? [];
   const initialConcepts = data.concepts ?? [];
+  const { currentProfileId } = useProfiles();
 
   const [collections, setCollections] = useState<Collection[]>(initialCollections);
   const [concepts, setConcepts] = useState<Concept[]>(initialConcepts);
@@ -186,10 +188,12 @@ export default function Finder() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ key: field.key, value: field.value, input_type: field.inputType }),
           });
+          await studyNewForCollection(payload.collection_id || "");
         }
         setFactFields(factFields.map((f) => ({ ...f, value: "" })));
       }
 
+      await studyNewForCollection(payload.collection_id || "");
       await refreshCollectionsAndConcepts();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to create concept");
@@ -223,8 +227,23 @@ export default function Finder() {
       setFactInputType("text");
       setFactConcept(conceptId);
       await loadFacts(conceptId);
+      const concept = concepts.find((c) => c.id === conceptId);
+      await studyNewForCollection(concept?.collection_id ?? "");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to create fact");
+    }
+  }
+
+  async function studyNewForCollection(collectionId: string) {
+    if (!currentProfileId || !collectionId) return;
+    try {
+      await fetchJSON(`${data.apiBase}/study/new`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile_id: currentProfileId, collection_id: collectionId }),
+      });
+    } catch {
+      // Best-effort; the queue may already include all facts for this profile.
     }
   }
 

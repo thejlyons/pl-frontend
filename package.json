@@ -10,7 +10,8 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "showcase": "SHOWCASE_VIDEO=1 SHOWCASE_SLOWMO=400 playwright test --project=chromium --output=showcase-artifacts --reporter=html && playwright show-report"
   },
   "dependencies": {
     "@react-router/node": "7.12.0",

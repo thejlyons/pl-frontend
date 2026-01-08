@@ -138,17 +138,47 @@ function GardenTended() {
   );
 }
 
+function getSafeImageUrl(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  // Avoid excessively long URLs that could impact performance or be abusive
+  if (trimmed.length > 2048) return null;
+
+  // Allow only http/https absolute URLs or relative paths starting with "/"
+  const lower = trimmed.toLowerCase();
+  const isHttp = lower.startsWith("http://") || lower.startsWith("https://");
+  const isRelativePath = trimmed.startsWith("/");
+
+  if (!isHttp && !isRelativePath) {
+    return null;
+  }
+
+  return trimmed;
+}
+
 function AnswerValue({ item }: { item: ReviewItem }) {
   const isMedia = /image|flag|map/i.test(item.key);
-  if (isMedia) {
+  const safeImageUrl = isMedia ? getSafeImageUrl(item.value) : null;
+
+  if (isMedia && safeImageUrl) {
     return (
       <div className="space-y-2">
         <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-          <img src={item.value} alt={item.key} className="h-56 w-full object-cover" loading="lazy" />
+          <img
+            src={safeImageUrl}
+            alt={item.key}
+            className="h-56 w-full object-cover"
+            loading="lazy"
+          />
         </div>
         <p className="text-sm text-slate-200 break-words">{item.value}</p>
       </div>
     );
   }
-  return <p className="text-xl font-semibold text-white break-words">{item.value}</p>;
+
+  return (
+    <p className="text-xl font-semibold text-white break-words">
+      {item.value}
+    </p>
+  );
 }

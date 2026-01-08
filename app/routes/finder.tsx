@@ -24,27 +24,38 @@ export type Fact = {
   concept_id: string;
   key: string;
   value: string;
+  input_type: string;
   next_review_at: string;
   interval_minutes: number;
   created_at: string;
 };
 
+type Blueprint = {
+  name: string;
+  keys: Array<{ key: string; input_type: string; reverse: boolean }>;
+};
+
+type FactField = { key: string; inputType: string; value: string };
+
 type FinderData = {
   collections: Collection[];
   concepts: Concept[];
+  blueprints: Blueprint[];
   apiBase: string;
 };
 
 export async function loader() {
   const base = apiBase();
-  const [collections, concepts] = await Promise.all([
+  const [collections, concepts, blueprints] = await Promise.all([
     fetchJSON<Collection[]>(`${base}/collections`),
     fetchJSON<Concept[]>(`${base}/concepts`),
+    fetchJSON<Blueprint[]>(`${base}/blueprints`).catch(() => []),
   ]);
 
   return {
     collections: collections ?? [],
     concepts: concepts ?? [],
+    blueprints: Array.isArray(blueprints) ? blueprints : [],
     apiBase: base,
   } satisfies FinderData;
 }
@@ -66,10 +77,13 @@ export default function Finder() {
   const [conceptName, setConceptName] = useState("");
   const [conceptKind, setConceptKind] = useState("");
   const [conceptCollection, setConceptCollection] = useState(initialCollections[0]?.id ?? "");
+  const [conceptBlueprint, setConceptBlueprint] = useState("custom");
+  const [factFields, setFactFields] = useState<FactField[]>([]);
 
   const [factKey, setFactKey] = useState("");
   const [factValue, setFactValue] = useState("");
   const [factConcept, setFactConcept] = useState(initialConcepts[0]?.id ?? "");
+  const [factInputType, setFactInputType] = useState("text");
 
   const createRef = useRef<HTMLDivElement | null>(null);
 
@@ -82,6 +96,22 @@ export default function Finder() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConceptId]);
+
+  function applyBlueprint(name: string) {
+    setConceptBlueprint(name);
+    if (name === "custom") {
+      setConceptKind("");
+      setFactFields([]);
+      return;
+    }
+    const bp = data.blueprints.find((b) => b.name === name);
+    if (!bp) {
+      setFactFields([]);
+      return;
+    }
+    setConceptKind(bp.name);
+    setFactFields(bp.keys.map((k) => ({ key: k.key, inputType: k.input_type || "text", value: "" })));
+  }
 
   async function refreshCollectionsAndConcepts() {
     const [cols, cons] = await Promise.all([
@@ -130,10 +160,11 @@ export default function Finder() {
   async function handleCreateConcept(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
+      const kind = conceptBlueprint !== "custom" ? conceptBlueprint : conceptKind;
       const payload = {
         collection_id: conceptCollection || collections?.[0]?.id,
         name: conceptName,
-        kind: conceptKind,
+        kind,
       };
       const created = await fetchJSON<Concept>(`${data.apiBase}/concepts`, {
         method: "POST",
@@ -142,10 +173,23 @@ export default function Finder() {
       });
       setMessage(`Created concept ${created.name}`);
       setConceptName("");
-      setConceptKind("");
+      setConceptKind(conceptBlueprint !== "custom" ? kind : "");
       setConceptCollection(payload.collection_id || "");
       setActiveConceptId(created.id);
       setFactConcept(created.id);
+
+      if (factFields.length > 0) {
+        for (const field of factFields) {
+          if (!field.value.trim()) continue;
+          await fetchJSON<Fact>(`${data.apiBase}/concepts/${created.id}/facts`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: field.key, value: field.value, input_type: field.inputType }),
+          });
+        }
+        setFactFields(factFields.map((f) => ({ ...f, value: "" })));
+      }
+
       await refreshCollectionsAndConcepts();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to create concept");
@@ -163,6 +207,7 @@ export default function Finder() {
       const payload = {
         key: factKey,
         value: factValue,
+        input_type: factInputType,
       };
       const created = await fetchJSON<Fact>(
         `${data.apiBase}/concepts/${conceptId}/facts`,
@@ -175,6 +220,7 @@ export default function Finder() {
       setMessage(`Created fact ${created.key}`);
       setFactKey("");
       setFactValue("");
+      setFactInputType("text");
       setFactConcept(conceptId);
       await loadFacts(conceptId);
     } catch (err) {
@@ -366,6 +412,21 @@ export default function Finder() {
               </select>
             </label>
             <label className="flex flex-col gap-2 text-sm text-slate-200">
+              Type
+              <select
+                value={conceptBlueprint}
+                onChange={(e) => applyBlueprint(e.target.value)}
+                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="custom">Custom</option>
+                {data.blueprints.map((bp) => (
+                  <option key={bp.name} value={bp.name}>
+                    {bp.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-2 text-sm text-slate-200">
               Name
               <input
                 data-testid="concept-name"
@@ -382,11 +443,35 @@ export default function Finder() {
                 data-testid="concept-kind"
                 value={conceptKind}
                 onChange={(e) => setConceptKind(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none disabled:opacity-60"
                 placeholder="Plant"
                 required
+                disabled={conceptBlueprint !== "custom"}
               />
             </label>
+            {factFields.length > 0 ? (
+              <div className="md:col-span-2 space-y-3 rounded-xl border border-emerald-700/40 bg-emerald-900/20 p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">Facts</p>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {factFields.map((field, idx) => (
+                    <label key={field.key} className="flex flex-col gap-2 text-sm text-slate-200">
+                      {field.key}
+                      <input
+                        value={field.value}
+                        onChange={(e) =>
+                          setFactFields((prev) =>
+                            prev.map((f, i) => (i === idx ? { ...f, value: e.target.value } : f))
+                          )
+                        }
+                        className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                        placeholder="Type answer"
+                        required
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <div className="flex items-end justify-end">
               <button
                 data-testid="submit-concept"
@@ -432,9 +517,20 @@ export default function Finder() {
                   value={factKey}
                   onChange={(e) => setFactKey(e.target.value)}
                   className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
-                  placeholder="Image URL"
+                  placeholder="Label (e.g., Flag)"
                   required
                 />
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-200 md:col-span-1">
+                Input Type
+                <select
+                  value={factInputType}
+                  onChange={(e) => setFactInputType(e.target.value)}
+                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                >
+                  <option value="text">Text</option>
+                  <option value="image">Image</option>
+                </select>
               </label>
               <label className="flex flex-col gap-2 text-sm text-slate-200 md:col-span-2">
                 Value
@@ -585,7 +681,7 @@ export default function Finder() {
 
 function FactValue({ fact }: { fact: Fact }) {
   const [imgError, setImgError] = useState(false);
-  const isMedia = /image|flag|map/i.test(fact.key);
+  const isMedia = fact.input_type?.toLowerCase() === "image";
 
   if (isMedia) {
     return (
@@ -607,9 +703,9 @@ function FactValue({ fact }: { fact: Fact }) {
             </div>
           </div>
         )}
-        <p className="text-sm text-slate-300 break-words">{fact.value}</p>
+        <p className="text-sm text-slate-300 break-all">{fact.value}</p>
       </div>
     );
   }
-  return <p className="text-sm text-slate-200 break-words">{fact.value}</p>;
+  return <p className="text-sm text-slate-200 break-all">{fact.value}</p>;
 }

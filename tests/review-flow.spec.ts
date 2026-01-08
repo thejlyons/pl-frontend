@@ -14,7 +14,10 @@ async function createConcept(api: APIRequestContext, collectionId: string, name:
   const res = await api.post(`${apiBase}/concepts`, {
     data: { collection_id: collectionId, name, kind: "Test" },
   });
-  expect(res.ok()).toBeTruthy();
+  if (!res.ok()) {
+    const detail = await res.text();
+    throw new Error(`createConcept failed: ${res.status()} ${detail}`);
+  }
   return (await res.json()) as { id: string };
 }
 
@@ -33,6 +36,9 @@ async function fetchQueue(api: APIRequestContext) {
 }
 
 test("user can review a fact and clear the queue", async ({ page, request }) => {
+  const reset = await request.post(`${apiBase}/test/reset`);
+  expect(reset.ok()).toBeTruthy();
+
   const now = Date.now();
   const collectionName = `Review Col ${now}`;
   const conceptName = `Review Concept ${now}`;
@@ -47,11 +53,11 @@ test("user can review a fact and clear the queue", async ({ page, request }) => 
   expect(queueBefore.length).toBeGreaterThan(0);
 
   await page.goto("/review");
-  await page.getByTestId("show-answer-btn").click();
-  await page.getByTestId("rating-recalled").click();
+  await page.getByTestId("typed-answer-input").fill(factValue);
+  await page.getByTestId("check-answer-btn").click();
 
-  await expect(page.getByText("Your garden is tended.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Return to Collections" })).toBeVisible();
+  await expect(page.getByTestId("rating-recalled")).toBeVisible();
+  await page.getByTestId("rating-recalled").click();
 
   const queueAfter = await fetchQueue(request);
   expect(queueAfter).toHaveLength(0);

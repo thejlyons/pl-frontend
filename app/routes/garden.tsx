@@ -11,6 +11,7 @@ export type ReviewItem = {
   collection_name: string;
   key: string;
   value: string;
+  input_type: string;
   next_review_at: string;
 };
 
@@ -87,21 +88,32 @@ export default function Garden() {
 }
 
 function RichValue({ item }: { item: ReviewItem }) {
-  const isMedia = /image|flag|map/i.test(item.key);
+  const isMedia = item.input_type?.toLowerCase() === "image";
+
   if (isMedia) {
+    const safeSrc = getSafeImageUrl(item.value);
+
+    if (!safeSrc) {
+      return <p className="text-sm text-slate-200 break-all">{item.value}</p>;
+    }
+
     return (
       <div className="space-y-2">
         <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-          <img
-            src={item.value}
-            alt={item.key}
+          <img src={safeSrc} alt={item.key} className="h-36 w-full object-cover" loading="lazy" />
+        </div>
+        <p className="text-sm text-slate-200 break-all">{item.value}</p>
+      </div>
+    );
+  }
+  return <p className="text-sm text-slate-200 break-all">{item.value}</p>;
+}
+
 function getSafeImageUrl(rawUrl: string): string | null {
   try {
-    // Resolve relative URLs against the current origin when running in the browser.
     const baseOrigin = typeof window !== "undefined" ? window.location.origin : undefined;
     const url = new URL(rawUrl, baseOrigin);
 
-    // Only allow HTTP(S) URLs.
     if (url.protocol !== "http:" && url.protocol !== "https:") {
       return null;
     }
@@ -118,7 +130,7 @@ function getSafeImageUrl(rawUrl: string): string | null {
         allowedOrigins.add(new URL(api).origin);
       }
     } catch {
-      // If apiBase() is not a valid URL, ignore it for origin checks.
+      // ignore invalid api base
     }
 
     if (!allowedOrigins.has(url.origin)) {
@@ -127,30 +139,6 @@ function getSafeImageUrl(rawUrl: string): string | null {
 
     return url.toString();
   } catch {
-    // Malformed URL or other parsing error.
     return null;
   }
-}
-
-function RichValue({ item }: { item: ReviewItem }) {
-  const isMedia = /image|flag|map/i.test(item.key);
-
-  if (isMedia) {
-    const safeSrc = getSafeImageUrl(item.value);
-
-    if (!safeSrc) {
-      // If the value is not a safe image URL, fall back to rendering text only.
-      return <p className="text-sm text-slate-200 break-words">{item.value}</p>;
-    }
-
-    return (
-      <div className="space-y-2">
-        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-          <img src={safeSrc} alt={item.key} className="h-36 w-full object-cover" loading="lazy" />
-        </div>
-        <p className="text-sm text-slate-200 break-words">{item.value}</p>
-      </div>
-    );
-  }
-  return <p className="text-sm text-slate-200 break-words">{item.value}</p>;
 }

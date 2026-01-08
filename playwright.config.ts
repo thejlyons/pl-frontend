@@ -12,7 +12,15 @@ export default defineConfig({
   use: {
     baseURL: process.env.E2E_BASE_URL || "http://localhost:4173",
     trace: "on-first-retry",
-    video: "retain-on-failure",
+    video: process.env.SHOWCASE_VIDEO ? "on" : "retain-on-failure",
+    launchOptions: {
+      // Slow down actions for showcase recordings when requested.
+      slowMo: (() => {
+        if (process.env.SHOWCASE_SLOWMO) return Number(process.env.SHOWCASE_SLOWMO) || 250;
+        if (process.env.SHOWCASE_VIDEO) return 400; // default slow-down when showcasing
+        return 0;
+      })(),
+    },
   },
   webServer: [
     {

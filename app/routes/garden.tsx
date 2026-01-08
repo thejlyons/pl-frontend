@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router";
 
 import { apiBase, fetchJSON } from "../lib/api";
 import { Card, OutlineButton, PageHeader } from "../lib/ui";
+import { useProfiles } from "../lib/profiles";
 
 export type ReviewItem = {
   id: string;
@@ -22,12 +24,47 @@ type GardenData = {
 
 export async function loader() {
   const base = apiBase();
-  const items = await fetchJSON<ReviewItem[]>(`${base}/review/queue`).catch(() => []);
-  return { items: Array.isArray(items) ? items : [], apiBase: base } satisfies GardenData;
+  return { items: [], apiBase: base } satisfies GardenData;
 }
 
 export default function Garden() {
   const data = useLoaderData<typeof loader>();
+  const { currentProfileId } = useProfiles();
+  const [items, setItems] = useState<ReviewItem[]>(data.items ?? []);
+
+  useEffect(() => {
+    if (!currentProfileId) return;
+    setItems([]);
+    void fetchJSON<ReviewItem[]>(`${data.apiBase}/review/queue?profile_id=${currentProfileId}`)
+      .then((list) => setItems(Array.isArray(list) ? list : []))
+      .catch(() => setItems([]));
+  }, [currentProfileId, data.apiBase]);
+
+  if (!currentProfileId) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-10 pt-6">
+        <PageHeader
+          title="Garden"
+          subtitle="Select or create a profile to see what is due."
+          action={
+            <div className="flex flex-wrap gap-2">
+              <OutlineButton to="/">← Library</OutlineButton>
+              <Link
+                to="/review"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+              >
+                Start Review
+              </Link>
+            </div>
+          }
+        />
+
+        <Card className="p-5 text-slate-200">
+          Choose a profile from the top bar or create a new one to load your personalized queue.
+        </Card>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-10 pt-6">
@@ -54,16 +91,16 @@ export default function Garden() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-white">Queue</h2>
-            <p className="text-sm text-slate-400">{data.items.length} items ready.</p>
+            <p className="text-sm text-slate-400">{items.length} items ready.</p>
           </div>
           <span className="pill bg-emerald-500/15 text-emerald-300">Review</span>
         </div>
 
-        {data.items.length === 0 ? (
+        {items.length === 0 ? (
           <p className="text-sm text-slate-400">No items due.</p>
         ) : (
           <ul className="grid gap-3 md:grid-cols-2">
-            {data.items.map((item: ReviewItem) => (
+            {items.map((item: ReviewItem) => (
               <li
                 key={item.id}
                 data-testid={`review-item-${item.id}`}

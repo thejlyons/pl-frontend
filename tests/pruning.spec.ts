@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 const apiBase = process.env.API_BASE_URL ?? "http://localhost:18080";
 
@@ -8,8 +8,22 @@ const conceptName = `Prune Concept ${now}`;
 const factKey = `Prune Key ${now}`;
 const factValue = `Prune Value ${now}`;
 
+async function ensureProfile(api: APIRequestContext) {
+  const res = await api.get(`${apiBase}/profiles`);
+  expect(res.ok()).toBeTruthy();
+  const list = (await res.json()) as Array<{ id: string; name: string }>;
+  if (Array.isArray(list) && list.length > 0) {
+    return list[0];
+  }
+  const created = await api.post(`${apiBase}/profiles`, { data: { name: `Tester ${Date.now()}` } });
+  expect(created.ok()).toBeTruthy();
+  return (await created.json()) as { id: string; name: string };
+}
+
 test("user can delete a concept and cascade its facts", async ({ page, request }) => {
+  const profile = await ensureProfile(request);
   await page.goto("/");
+  await page.getByTestId("profile-select").selectOption(profile.id);
 
   await page.getByTestId("collection-name").fill(collectionName);
   await page.getByTestId("submit-collection").click();

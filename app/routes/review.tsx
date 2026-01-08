@@ -11,8 +11,13 @@ type LoaderData = {
 
 export async function loader() {
   const base = apiBase();
-  const items = await fetchJSON<ReviewItem[]>(`${base}/review/queue`);
-  return { items, apiBase: base } satisfies LoaderData;
+  try {
+    const items = await fetchJSON<ReviewItem[]>(`${base}/review/queue`);
+    return { items, apiBase: base } satisfies LoaderData;
+  } catch (error) {
+    console.error("Failed to load review queue:", error);
+    return { items: [], apiBase: base } satisfies LoaderData;
+  }
 }
 
 export default function ReviewPlayer() {

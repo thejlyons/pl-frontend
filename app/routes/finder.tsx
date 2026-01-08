@@ -186,28 +186,51 @@ export default function Finder() {
     const target = concepts.find((c) => c.id === id);
     const name = target?.name ?? "concept";
     if (!window.confirm(`Delete ${name}? This will also remove its facts.`)) return;
+
+    // Snapshot current state for rollback in case the delete fails
+    const prevConcepts = concepts;
+    const prevFacts = facts;
+    const prevActiveConceptId = activeConceptId;
+    const prevFactConcept = factConcept;
+
+    // Optimistically update local state
+    const nextConcepts = concepts.filter((c) => c.id !== id);
+    const nextActiveConceptId =
+      activeConceptId === id ? nextConcepts[0]?.id ?? "" : activeConceptId;
+
+    // Update concepts list if setter is available elsewhere in this component
+    // (assumes a standard [concepts, setConcepts] state pair exists)
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    typeof setConcepts === "function" && setConcepts(nextConcepts);
+
+    setActiveConceptId(nextActiveConceptId);
+    setFactConcept(nextActiveConceptId);
+    setFacts((prev) => prev.filter((f) => f.concept_id !== id));
+
     try {
-      setActiveConceptId("");
-      setFactConcept("");
-      setFacts([]);
       const res = await fetch(`${data.apiBase}/concepts/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const detail = await res.text();
         throw new Error(detail || "Unable to delete concept");
       }
-      const nextState = await refreshCollectionsAndConcepts();
-      const nextActive = activeConceptId === id ? nextState.concepts[0]?.id ?? "" : activeConceptId;
-      setFacts([]);
-      setActiveConceptId(nextActive);
-      setFactConcept(nextActive);
-      if (nextActive) {
-        await loadFacts(nextActive);
+
+      // Refresh collections/concepts from the server to ensure full consistency
+      await refreshCollectionsAndConcepts();
+
+      if (nextActiveConceptId) {
+        await loadFacts(nextActiveConceptId);
       } else {
         setFacts([]);
       }
-      setFacts((prev) => prev.filter((f) => f.concept_id !== id));
+
       setMessage(`Deleted ${name}`);
     } catch (err) {
+      // Roll back optimistic updates on error
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      typeof setConcepts === "function" && setConcepts(prevConcepts);
+      setActiveConceptId(prevActiveConceptId);
+      setFactConcept(prevFactConcept);
+      setFacts(prevFacts);
       setMessage(err instanceof Error ? err.message : "Failed to delete concept");
     }
   }

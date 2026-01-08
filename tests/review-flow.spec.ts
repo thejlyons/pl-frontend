@@ -1,6 +1,6 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
 
-const apiBase = process.env.API_BASE_URL ?? "http://localhost:8080";
+const apiBase = process.env.API_BASE_URL ?? "http://localhost:18080";
 
 async function createCollection(api: APIRequestContext, name: string) {
   const res = await api.post(`${apiBase}/collections`, {

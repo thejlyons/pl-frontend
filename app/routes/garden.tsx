@@ -1,6 +1,7 @@
 import { Link, useLoaderData } from "react-router";
 
 import { apiBase, fetchJSON } from "../lib/api";
+import { Card, OutlineButton, PageHeader } from "../lib/ui";
 
 export type ReviewItem = {
   id: string;
@@ -28,43 +29,128 @@ export default function Garden() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <main className="p-4 space-y-4">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Garden</h1>
-          <p className="text-sm text-slate-600">Facts due for review.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link to="/review" data-testid="nav-review" className="underline">
-            Start Review
-          </Link>
-          <Link to="/" data-testid="nav-finder" className="underline">
-            Back to Finder
-          </Link>
-        </div>
-      </header>
+    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-10 pt-6">
+      <PageHeader
+        title="Garden"
+        subtitle="Check what is due and jump into review."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <OutlineButton to="/" data-testid="nav-finder">
+              ← Library
+            </OutlineButton>
+            <Link
+              to="/review"
+              data-testid="nav-review"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+            >
+              Start Review
+            </Link>
+          </div>
+        }
+      />
 
-      <section className="rounded border p-4 space-y-2">
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-white">Queue</h2>
+            <p className="text-sm text-slate-400">{data.items.length} items ready.</p>
+          </div>
+          <span className="pill bg-emerald-500/15 text-emerald-300">Review</span>
+        </div>
+
         {data.items.length === 0 ? (
-          <p className="text-sm text-slate-600">No items due.</p>
+          <p className="text-sm text-slate-400">No items due.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="grid gap-3 md:grid-cols-2">
             {data.items.map((item: ReviewItem) => (
               <li
                 key={item.id}
                 data-testid={`review-item-${item.id}`}
-                className="border rounded p-3"
+                className="rounded-xl border border-slate-800 bg-slate-900/60 p-4"
               >
-                <div className="font-semibold">{item.key}</div>
-                <div className="text-sm text-slate-700">{item.value}</div>
-                <div className="text-xs text-slate-500">
-                  {item.concept_name} · {item.collection_name}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-2">
+                    <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{item.key}</p>
+                    <RichValue item={item} />
+                    <p className="text-xs text-slate-500">
+                      {item.concept_name} · {item.collection_name}
+                    </p>
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </Card>
     </main>
   );
+}
+
+function RichValue({ item }: { item: ReviewItem }) {
+  const isMedia = /image|flag|map/i.test(item.key);
+  if (isMedia) {
+    return (
+      <div className="space-y-2">
+        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+          <img
+            src={item.value}
+            alt={item.key}
+function getSafeImageUrl(rawUrl: string): string | null {
+  try {
+    // Resolve relative URLs against the current origin when running in the browser.
+    const baseOrigin = typeof window !== "undefined" ? window.location.origin : undefined;
+    const url = new URL(rawUrl, baseOrigin);
+
+    // Only allow HTTP(S) URLs.
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return null;
+    }
+
+    const allowedOrigins = new Set<string>();
+
+    if (typeof window !== "undefined") {
+      allowedOrigins.add(window.location.origin);
+    }
+
+    try {
+      const api = apiBase();
+      if (api) {
+        allowedOrigins.add(new URL(api).origin);
+      }
+    } catch {
+      // If apiBase() is not a valid URL, ignore it for origin checks.
+    }
+
+    if (!allowedOrigins.has(url.origin)) {
+      return null;
+    }
+
+    return url.toString();
+  } catch {
+    // Malformed URL or other parsing error.
+    return null;
+  }
+}
+
+function RichValue({ item }: { item: ReviewItem }) {
+  const isMedia = /image|flag|map/i.test(item.key);
+
+  if (isMedia) {
+    const safeSrc = getSafeImageUrl(item.value);
+
+    if (!safeSrc) {
+      // If the value is not a safe image URL, fall back to rendering text only.
+      return <p className="text-sm text-slate-200 break-words">{item.value}</p>;
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+          <img src={safeSrc} alt={item.key} className="h-36 w-full object-cover" loading="lazy" />
+        </div>
+        <p className="text-sm text-slate-200 break-words">{item.value}</p>
+      </div>
+    );
+  }
+  return <p className="text-sm text-slate-200 break-words">{item.value}</p>;
 }

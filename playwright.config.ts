@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
   timeout: 120_000,
+  globalSetup: "./tests/global.setup.ts",
   expect: {
     timeout: 10_000,
   },
@@ -13,7 +14,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "cd ../pl-backend && PORT=18080 go run ./...",
+      command: "cd ../pl-backend && APP_ENV=test PORT=18080 go run ./...",
       url: "http://localhost:18080/health",
       timeout: 120_000,
       reuseExistingServer: true,

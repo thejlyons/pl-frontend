@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router";
 
 import { apiBase, fetchJSON } from "../lib/api";
@@ -25,10 +25,20 @@ export default function ReviewPlayer() {
   const data = useLoaderData<typeof loader>();
   const [queue, setQueue] = useState<ReviewItem[]>(data.items ?? []);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [typedAnswer, setTypedAnswer] = useState("");
+  const [result, setResult] = useState<"idle" | "correct" | "incorrect">("idle");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const current = queue[0];
+  const isMedia = current?.input_type?.toLowerCase() === "image";
+
+  useEffect(() => {
+    setShowAnswer(false);
+    setTypedAnswer("");
+    setResult("idle");
+    setError(null);
+  }, [current?.id]);
 
   async function handleRating(rating: "forgot" | "recalled") {
     if (!current) return;
@@ -42,11 +52,32 @@ export default function ReviewPlayer() {
       });
       setQueue((prev) => prev.slice(1));
       setShowAnswer(false);
+      setTypedAnswer("");
+      setResult("idle");
     } catch (err) {
       const detail = err instanceof Error ? err.message : "Unable to submit rating";
       setError(detail);
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleCheckAnswer() {
+    if (!current) return;
+    const guess = typedAnswer.trim().toLowerCase();
+    const answer = current.value.trim().toLowerCase();
+
+    if (!guess) {
+      setError("Type an answer first");
+      return;
+    }
+
+    if (guess === answer) {
+      setResult("correct");
+      setShowAnswer(true);
+    } else {
+      setResult("incorrect");
+      setShowAnswer(true);
     }
   }
 
@@ -58,26 +89,77 @@ export default function ReviewPlayer() {
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 pb-12 pt-6 text-slate-100">
       <PageHeader
         title="Review"
-        subtitle="Reinforce concepts and see rich media answers."
+        subtitle="Type your answer to prove recall; media hints included."
         action={<OutlineButton to="/garden">← Queue</OutlineButton>}
       />
 
       <Card className="space-y-5 p-5">
         <div className="rounded-2xl border border-emerald-800 bg-emerald-950/60 p-5 shadow-inner">
           <p className="text-sm uppercase tracking-[0.25em] text-emerald-300">Prompt</p>
-          <p className="mt-2 text-xl font-semibold text-white">
-            What is the <span className="text-emerald-300">{current.key}</span> of
-            <span className="text-emerald-300"> {current.concept_name}</span>?
-          </p>
-          <p className="text-sm text-slate-400">Collection: {current.collection_name}</p>
+          <div className="mt-2 space-y-2 text-xl font-semibold text-white">
+            {isMedia ? (
+              <p>
+                Which concept has this <span className="text-emerald-300">{current.key.toLowerCase()}</span>?
+              </p>
+            ) : (
+              <p>
+                What is the <span className="text-emerald-300">{current.key}</span> of
+                <span className="text-emerald-300"> {current.concept_name}</span>?
+              </p>
+            )}
+            <p className="text-sm font-normal text-slate-400">Collection: {current.collection_name}</p>
+          </div>
         </div>
-
-        {showAnswer ? (
-          <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+          {isMedia ? (
             <div className="space-y-2">
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Answer</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Visual</p>
               <AnswerValue item={current} />
             </div>
+          ) : null}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleCheckAnswer();
+            }}
+            className="space-y-3"
+          >
+            <label className="flex flex-col gap-2 text-sm text-slate-200">
+              Your Answer
+              <input
+                data-testid="typed-answer-input"
+                value={typedAnswer}
+                onChange={(e) => setTypedAnswer(e.target.value)}
+                className={`rounded-xl border px-3 py-3 text-base font-semibold text-slate-100 shadow-inner focus:border-emerald-400 focus:outline-none ${
+                  result === "incorrect" ? "border-rose-500" : "border-slate-700"
+                } ${result === "incorrect" ? "animate-shake" : ""}`}
+                placeholder={isMedia ? "Type the concept name" : "Type it..."}
+                disabled={isSubmitting}
+                autoFocus
+              />
+            </label>
+            <button
+              type="submit"
+              data-testid="check-answer-btn"
+              disabled={isSubmitting}
+              className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400 disabled:opacity-60"
+            >
+              Check Answer
+            </button>
+            {result === "correct" ? (
+              <p className="text-sm font-semibold text-emerald-300">Nice! Choose a rating to record it.</p>
+            ) : null}
+          </form>
+
+          {(showAnswer || result !== "idle") && (
+            <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Correct Answer</p>
+              <AnswerValue item={current} />
+            </div>
+          )}
+
+          {(showAnswer || result !== "idle") && (
             <div className="flex gap-3">
               <button
                 type="button"
@@ -98,19 +180,8 @@ export default function ReviewPlayer() {
                 Recalled
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
-            <button
-              type="button"
-              data-testid="show-answer-btn"
-              onClick={() => setShowAnswer(true)}
-              className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
-            >
-              Show Answer
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
         {error && <p className="text-sm text-rose-300">{error}</p>}
       </Card>
@@ -141,10 +212,8 @@ function GardenTended() {
 function getSafeImageUrl(raw: string): string | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
-  // Avoid excessively long URLs that could impact performance or be abusive
   if (trimmed.length > 2048) return null;
 
-  // Allow only http/https absolute URLs or relative paths starting with "/"
   const lower = trimmed.toLowerCase();
   const isHttp = lower.startsWith("http://") || lower.startsWith("https://");
   const isRelativePath = trimmed.startsWith("/");
@@ -157,7 +226,7 @@ function getSafeImageUrl(raw: string): string | null {
 }
 
 function AnswerValue({ item }: { item: ReviewItem }) {
-  const isMedia = /image|flag|map/i.test(item.key);
+  const isMedia = item.input_type?.toLowerCase() === "image";
   const safeImageUrl = isMedia ? getSafeImageUrl(item.value) : null;
 
   if (isMedia && safeImageUrl) {
@@ -171,14 +240,10 @@ function AnswerValue({ item }: { item: ReviewItem }) {
             loading="lazy"
           />
         </div>
-        <p className="text-sm text-slate-200 break-words">{item.value}</p>
+        <p className="text-sm text-slate-200 break-all">{item.value}</p>
       </div>
     );
   }
 
-  return (
-    <p className="text-xl font-semibold text-white break-words">
-      {item.value}
-    </p>
-  );
+  return <p className="text-xl font-semibold text-white break-words break-all">{item.value}</p>;
 }

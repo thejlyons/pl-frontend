@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: "./tests",
   timeout: 120_000,
   globalSetup: "./tests/global.setup.ts",
+  // Shared test database; run serially to avoid cross-test contamination.
+  workers: 1,
   expect: {
     timeout: 10_000,
   },

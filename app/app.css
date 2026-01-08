@@ -18,3 +18,19 @@ body {
 .pill {
   @apply rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide;
 }
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.25s ease-in-out 0s 2;
+}

@@ -7,9 +7,14 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  color-scheme: dark;
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+.glass-card {
+  @apply rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-xl backdrop-blur;
+}
+
+.pill {
+  @apply rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide;
 }

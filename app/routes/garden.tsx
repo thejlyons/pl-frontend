@@ -95,13 +95,58 @@ function RichValue({ item }: { item: ReviewItem }) {
           <img
             src={item.value}
             alt={item.key}
-            className="h-36 w-full object-cover"
-            loading="lazy"
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.style.display = "none";
-            }}
-          />
+function getSafeImageUrl(rawUrl: string): string | null {
+  try {
+    // Resolve relative URLs against the current origin when running in the browser.
+    const baseOrigin = typeof window !== "undefined" ? window.location.origin : undefined;
+    const url = new URL(rawUrl, baseOrigin);
+
+    // Only allow HTTP(S) URLs.
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return null;
+    }
+
+    const allowedOrigins = new Set<string>();
+
+    if (typeof window !== "undefined") {
+      allowedOrigins.add(window.location.origin);
+    }
+
+    try {
+      const api = apiBase();
+      if (api) {
+        allowedOrigins.add(new URL(api).origin);
+      }
+    } catch {
+      // If apiBase() is not a valid URL, ignore it for origin checks.
+    }
+
+    if (!allowedOrigins.has(url.origin)) {
+      return null;
+    }
+
+    return url.toString();
+  } catch {
+    // Malformed URL or other parsing error.
+    return null;
+  }
+}
+
+function RichValue({ item }: { item: ReviewItem }) {
+  const isMedia = /image|flag|map/i.test(item.key);
+
+  if (isMedia) {
+    const safeSrc = getSafeImageUrl(item.value);
+
+    if (!safeSrc) {
+      // If the value is not a safe image URL, fall back to rendering text only.
+      return <p className="text-sm text-slate-200 break-words">{item.value}</p>;
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+          <img src={safeSrc} alt={item.key} className="h-36 w-full object-cover" loading="lazy" />
         </div>
         <p className="text-sm text-slate-200 break-words">{item.value}</p>
       </div>

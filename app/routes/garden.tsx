@@ -92,7 +92,16 @@ function RichValue({ item }: { item: ReviewItem }) {
     return (
       <div className="space-y-2">
         <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-          <img src={item.value} alt={item.key} className="h-36 w-full object-cover" loading="lazy" />
+          <img
+            src={item.value}
+            alt={item.key}
+            className="h-36 w-full object-cover"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.style.display = "none";
+            }}
+          />
         </div>
         <p className="text-sm text-slate-200 break-words">{item.value}</p>
       </div>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Perennial React Router Frontend
 
 Minimal health-check UI that calls the Go API `/health` endpoint.
@@ -14,3 +15,7 @@ Minimal health-check UI that calls the Go API `/health` endpoint.
 - Green status when `/health` returns `ok`
 - Server time from the response
 - Error details if the request fails
+=======
+# pl-frontend
+Frontend for Perennial (working title)
+>>>>>>> origin/main

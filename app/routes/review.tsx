@@ -125,7 +125,7 @@ function GardenTended() {
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-sky-50 text-slate-900 p-4 flex items-center justify-center">
       <section className="w-full max-w-xl space-y-6 rounded-3xl bg-white/90 backdrop-blur shadow-xl border border-emerald-100 p-6 text-center">
         <p className="text-xs uppercase tracking-[0.2em] text-emerald-600">All clear</p>
-        <h1 className="text-3xl font-semibold">Garden tended</h1>
+        <h1 className="text-3xl font-semibold">Garden Tended</h1>
         <p className="text-slate-700">
           Your garden is tended. Come back later to help it grow.
         </p>

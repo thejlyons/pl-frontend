@@ -20,8 +20,8 @@ type GardenData = {
 
 export async function loader() {
   const base = apiBase();
-  const items = await fetchJSON<ReviewItem[]>(`${base}/review/queue`);
-  return { items, apiBase: base } satisfies GardenData;
+  const items = await fetchJSON<ReviewItem[]>(`${base}/review/queue`).catch(() => []);
+  return { items: Array.isArray(items) ? items : [], apiBase: base } satisfies GardenData;
 }
 
 export default function Garden() {
@@ -34,9 +34,14 @@ export default function Garden() {
           <h1 className="text-2xl font-semibold">Garden</h1>
           <p className="text-sm text-slate-600">Facts due for review.</p>
         </div>
-        <Link to="/" data-testid="nav-finder" className="underline">
-          Back to Finder
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/review" data-testid="nav-review" className="underline">
+            Start Review
+          </Link>
+          <Link to="/" data-testid="nav-finder" className="underline">
+            Back to Finder
+          </Link>
+        </div>
       </header>
 
       <section className="rounded border p-4 space-y-2">

@@ -584,18 +584,29 @@ export default function Finder() {
 }
 
 function FactValue({ fact }: { fact: Fact }) {
+  const [imgError, setImgError] = useState(false);
   const isMedia = /image|flag|map/i.test(fact.key);
+
   if (isMedia) {
     return (
       <div className="mt-2 space-y-2">
-        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-          <img
-            src={fact.value}
-            alt={fact.key}
-            className="h-40 w-full object-cover"
-            loading="lazy"
-          />
-        </div>
+        {!imgError ? (
+          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+            <img
+              src={fact.value}
+              alt={fact.key}
+              className="h-40 w-full object-cover"
+              loading="lazy"
+              onError={() => setImgError(true)}
+            />
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+            <div className="flex h-40 w-full items-center justify-center px-4 text-center text-sm text-slate-400">
+              Unable to load image.
+            </div>
+          </div>
+        )}
         <p className="text-sm text-slate-300 break-words">{fact.value}</p>
       </div>
     );

@@ -5,8 +5,21 @@ import { apiBase, fetchJSON } from "./api";
 type Profile = {
   id: string;
   name: string;
-  srs_config: { base_interval_days: number; ease_multiplier: number };
+  srs_config: { base_interval_days: number; ease_multiplier: number; interval_modifier: number };
 };
+
+const defaultSRS = {
+  base_interval_days: 1,
+  ease_multiplier: 2.5,
+  interval_modifier: 1,
+};
+
+function normalizeProfile(profile: Profile): Profile {
+  return {
+    ...profile,
+    srs_config: { ...defaultSRS, ...profile.srs_config },
+  };
+}
 
 type ProfileContextValue = {
   profiles: Profile[];
@@ -53,7 +66,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     try {
       const list = await fetchJSON<Profile[]>(`${apiBase()}/profiles`);
       if (Array.isArray(list) && list.length > 0) {
-        setProfiles(list);
+        setProfiles(list.map(normalizeProfile));
         return;
       }
 
@@ -65,7 +78,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: "My Profile" }),
       });
-      setProfiles([created]);
+      setProfiles([normalizeProfile(created)]);
       setCurrentProfileId(created.id);
     } catch {
       setProfiles([]);
@@ -82,7 +95,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     });
     await refreshProfiles();
     setCurrentProfileId(created.id);
-    return created;
+    return normalizeProfile(created);
   }
 
   async function updateProfileSRS(id: string, cfg: Profile["srs_config"]) {
@@ -93,7 +106,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     });
     await refreshProfiles();
     setCurrentProfileId(updated.id);
-    return updated;
+    return normalizeProfile(updated);
   }
 
   const value = useMemo<ProfileContextValue>(() => {

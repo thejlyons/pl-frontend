@@ -24,17 +24,28 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "cd ../pl-backend && APP_ENV=test PORT=18080 go run ./...",
+      command: "go run .",
+      cwd: "../pl-backend",
+      env: {
+        DATABASE_URL: "sqlite://file:perennial_e2e.db?cache=shared&_fk=1",
+        AUTO_MIGRATE: "1",
+        APP_ENV: "test",
+        PORT: "18080",
+      },
       url: "http://localhost:18080/health",
       timeout: 120_000,
-      reuseExistingServer: true,
+      reuseExistingServer: false,
     },
     {
-      command:
-        "cd ../pl-frontend && API_BASE_URL=http://localhost:18080 npm run dev -- --host --port 4173",
+      command: "npm run dev -- --host --port 4173",
+      cwd: "./",
+      env: {
+        API_BASE_URL: "http://localhost:18080",
+        VITE_API_BASE_URL: "http://localhost:18080",
+      },
       url: "http://localhost:4173",
       timeout: 120_000,
-      reuseExistingServer: true,
+      reuseExistingServer: false,
     },
   ],
   projects: [

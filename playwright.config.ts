@@ -50,8 +50,12 @@ export default defineConfig({
   ],
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: "chromium-desktop",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 } },
+    },
+    {
+      name: "mobile-safari",
+      use: { ...devices["iPhone 12"] },
     },
   ],
 });

@@ -36,8 +36,8 @@ test("typed review requires correct answer", async ({ page, request }) => {
   await page.getByTestId("typed-answer-input").fill("Paris");
   await page.getByTestId("check-answer-btn").click();
 
-  await expect(page.getByTestId("rating-recalled")).toBeVisible();
-  await page.getByTestId("rating-recalled").click();
+  await expect(page.getByTestId("rating-good")).toBeVisible();
+  await page.getByTestId("rating-good").click();
 
   // Ensure queue advanced
   const queueAfterFirst = await fetchQueue(request, profile.id);
@@ -47,5 +47,5 @@ test("typed review requires correct answer", async ({ page, request }) => {
   await page.getByTestId("typed-answer-input").fill("Berlin");
   await page.getByTestId("check-answer-btn").click();
   await expect(page.getByText(/Correct Answer/i)).toBeVisible();
-  await expect(page.getByTestId("rating-forgot")).toBeVisible();
+  await expect(page.getByTestId("rating-again")).toBeVisible();
 });

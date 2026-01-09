@@ -71,8 +71,8 @@ test("user can review a fact and clear the queue", async ({ page, request }) => 
   await page.getByTestId("typed-answer-input").fill(factValue);
   await page.getByTestId("check-answer-btn").click();
 
-  await expect(page.getByTestId("rating-recalled")).toBeVisible();
-  await page.getByTestId("rating-recalled").click();
+  await expect(page.getByTestId("rating-good")).toBeVisible();
+  await page.getByTestId("rating-good").click();
 
   const queueAfter = await fetchQueue(request, profile.id);
   expect(queueAfter).toHaveLength(0);

@@ -44,7 +44,7 @@ export default function ReviewPlayer() {
     setError(null);
   }, [current?.id]);
 
-  async function handleRating(rating: "forgot" | "recalled") {
+  async function handleRating(rating: "again" | "hard" | "good" | "easy") {
     if (!current) return;
     setIsSubmitting(true);
     setError(null);
@@ -172,24 +172,42 @@ export default function ReviewPlayer() {
           )}
 
           {(showAnswer || result !== "idle") && (
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <button
                 type="button"
-                data-testid="rating-forgot"
+                data-testid="rating-again"
                 disabled={isSubmitting}
-                onClick={() => handleRating("forgot")}
-                className="flex-1 rounded-lg border border-rose-700 bg-rose-900/60 px-4 py-3 text-rose-100 hover:border-rose-500 disabled:opacity-60"
+                onClick={() => handleRating("again")}
+                className="rounded-lg border border-rose-700 bg-rose-900/60 px-4 py-3 text-rose-100 hover:border-rose-500 disabled:opacity-60"
               >
-                Forgot
+                Again
               </button>
               <button
                 type="button"
-                data-testid="rating-recalled"
+                data-testid="rating-hard"
                 disabled={isSubmitting}
-                onClick={() => handleRating("recalled")}
-                className="flex-1 rounded-lg border border-emerald-700 bg-emerald-900/60 px-4 py-3 text-emerald-100 hover:border-emerald-500 disabled:opacity-60"
+                onClick={() => handleRating("hard")}
+                className="rounded-lg border border-amber-700 bg-amber-900/60 px-4 py-3 text-amber-100 hover:border-amber-500 disabled:opacity-60"
               >
-                Recalled
+                Hard
+              </button>
+              <button
+                type="button"
+                data-testid="rating-good"
+                disabled={isSubmitting}
+                onClick={() => handleRating("good")}
+                className="rounded-lg border border-emerald-700 bg-emerald-900/60 px-4 py-3 text-emerald-100 hover:border-emerald-500 disabled:opacity-60"
+              >
+                Good
+              </button>
+              <button
+                type="button"
+                data-testid="rating-easy"
+                disabled={isSubmitting}
+                onClick={() => handleRating("easy")}
+                className="rounded-lg border border-cyan-700 bg-cyan-900/60 px-4 py-3 text-cyan-100 hover:border-cyan-500 disabled:opacity-60"
+              >
+                Easy
               </button>
             </div>
           )}

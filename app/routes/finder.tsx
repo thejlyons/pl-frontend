@@ -1,3 +1,4 @@
+import { EyeOff, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useLoaderData } from "react-router";
 
@@ -639,7 +640,7 @@ export default function Finder() {
                       onClick={() => handleDeleteConcept(c.id)}
                       aria-label={`Delete ${c.name}`}
                     >
-                      🗑️
+                      <Trash2 className="h-4 w-4" aria-hidden />
                     </button>
                   </div>
                 </li>
@@ -684,7 +685,7 @@ export default function Finder() {
                     onClick={() => handleDeleteFact(f.id)}
                     aria-label={`Delete fact ${f.key}`}
                   >
-                    🗑️
+                    <Trash2 className="h-4 w-4" aria-hidden />
                   </button>
                 </div>
               </li>
@@ -699,32 +700,21 @@ export default function Finder() {
 }
 
 function FactValue({ fact }: { fact: Fact }) {
-  const [imgError, setImgError] = useState(false);
-  const isMedia = fact.input_type?.toLowerCase() === "image";
-
-  if (isMedia) {
-    return (
-      <div className="mt-2 space-y-2">
-        {!imgError ? (
-          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-            <img
-              src={fact.value}
-              alt={fact.key}
-              className="h-40 w-full object-cover"
-              loading="lazy"
-              onError={() => setImgError(true)}
-            />
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-            <div className="flex h-40 w-full items-center justify-center px-4 text-center text-sm text-slate-400">
-              Unable to load image.
-            </div>
-          </div>
-        )}
-        <p className="text-sm text-slate-300 break-all">{fact.value}</p>
+  return (
+    <div className="mt-2 space-y-2 rounded-xl border border-white/10 bg-slate-900/50 p-3 text-sm text-slate-400">
+      <div className="flex items-center gap-2 text-slate-200">
+        <EyeOff className="h-4 w-4" aria-hidden />
+        <span>Spoiler-safe: value hidden in Library.</span>
       </div>
-    );
-  }
-  return <p className="text-sm text-slate-200 break-all">{fact.value}</p>;
+      <p className="text-xs text-slate-500">
+        Open the dossier to reveal this fact when you need it.
+      </p>
+      <Link
+        to={`/concepts/${fact.concept_id}`}
+        className="inline-flex w-fit items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200 hover:border-emerald-400"
+      >
+        Open Dossier
+      </Link>
+    </div>
+  );
 }

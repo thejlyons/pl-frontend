@@ -22,7 +22,7 @@ async function ensureProfile(api: APIRequestContext) {
 
 test("user can delete a concept and cascade its facts", async ({ page, request }) => {
   const profile = await ensureProfile(request);
-  await page.goto("/");
+  await page.goto("/library");
   await page.getByTestId("profile-select").selectOption(profile.id);
 
   await page.getByTestId("collection-name").fill(collectionName);

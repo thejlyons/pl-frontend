@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { CheckCircle2, Droplets, Shield, Sprout } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLoaderData } from "react-router";
 
 import { apiBase, fetchJSON } from "../lib/api";
-import { Card, OutlineButton, PageHeader } from "../lib/ui";
 import { useProfiles } from "../lib/profiles";
+import { Card, OutlineButton, PageHeader } from "../lib/ui";
 
 export type ReviewItem = {
   id: string;
@@ -40,142 +41,133 @@ export default function Garden() {
       .catch(() => setItems([]));
   }, [currentProfileId, data.apiBase]);
 
-  if (!currentProfileId) {
-    return (
-      <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-10 pt-6">
+  const state = useMemo(() => {
+    const count = items.length;
+    if (count === 0) return { label: "Garden is flourishing", tone: "success" as const };
+    if (count < 4) return { label: `Tend ${count} growth${count === 1 ? "" : "s"}`, tone: "calm" as const };
+    return { label: `Water ${count} plants`, tone: "alert" as const };
+  }, [items.length]);
+
+  const heroIcon = state.tone === "success" ? (
+    <CheckCircle2 className="h-10 w-10 text-emerald-300" />
+  ) : state.tone === "calm" ? (
+    <Sprout className="h-10 w-10 text-emerald-200" />
+  ) : (
+    <Droplets className="h-10 w-10 text-cyan-200" />
+  );
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 pb-14 pt-8 text-slate-50">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <PageHeader
-          title="Garden"
-          subtitle="Select or create a profile to see what is due."
+          title="The Greenhouse"
+          subtitle="Nurture your garden without revealing the answers."
           action={
             <div className="flex flex-wrap gap-2">
-              <OutlineButton to="/">← Library</OutlineButton>
+              <OutlineButton to="/library" data-testid="nav-finder">
+                Library
+              </OutlineButton>
               <Link
                 to="/review"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+                data-testid="nav-review"
+                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
               >
-                Start Review
+                Tend Now
               </Link>
             </div>
           }
         />
 
-        <Card className="p-5 text-slate-200">
-          Choose a profile from the top bar or create a new one to load your personalized queue.
-        </Card>
-      </main>
-    );
-  }
-
-  return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-10 pt-6">
-      <PageHeader
-        title="Garden"
-        subtitle="Check what is due and jump into review."
-        action={
-          <div className="flex flex-wrap gap-2">
-            <OutlineButton to="/" data-testid="nav-finder">
-              ← Library
-            </OutlineButton>
-            <Link
-              to="/review"
-              data-testid="nav-review"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
-            >
-              Start Review
-            </Link>
-          </div>
-        }
-      />
-
-      <Card className="p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Queue</h2>
-            <p className="text-sm text-slate-400">{items.length} items ready.</p>
-          </div>
-          <span className="pill bg-emerald-500/15 text-emerald-300">Review</span>
-        </div>
-
-        {items.length === 0 ? (
-          <p className="text-sm text-slate-400">No items due.</p>
+        {!currentProfileId ? (
+          <Card className="glass-panel p-6 text-slate-200">
+            <p className="text-lg font-semibold text-white">Choose a profile to enter the garden.</p>
+            <p className="text-sm text-slate-400">
+              Profiles keep your growth progress separate. Create one from the top bar to begin tending.
+            </p>
+          </Card>
         ) : (
-          <ul className="grid gap-3 md:grid-cols-2">
-            {items.map((item: ReviewItem) => (
-              <li
-                key={item.id}
-                data-testid={`review-item-${item.id}`}
-                className="rounded-xl border border-slate-800 bg-slate-900/60 p-4"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-2">
-                    <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{item.key}</p>
-                    <RichValue item={item} />
-                    <p className="text-xs text-slate-500">
-                      {item.concept_name} · {item.collection_name}
-                    </p>
-                  </div>
+          <section className="grid gap-4 md:grid-cols-3">
+            <div className="glass-panel col-span-2 space-y-4 p-6">
+              <div className="flex items-center gap-4">
+                {heroIcon}
+                <div className="space-y-1">
+                  <p className="pill bg-emerald-500/15 text-emerald-300">Garden Pulse</p>
+                  <h2 className="text-2xl font-semibold text-white">{state.label}</h2>
+                  <p className="text-sm text-slate-400">
+                    {items.length === 0
+                      ? "All growths are healthy."
+                      : "Tend now to keep your growths thriving."}
+                  </p>
                 </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  to="/review"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+                >
+                  Tend Queue
+                </Link>
+                <Link
+                  to="/library"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/40 px-4 py-2 text-sm font-semibold text-slate-100 shadow hover:border-emerald-400"
+                >
+                  Browse Library
+                </Link>
+              </div>
+            </div>
+
+            <div className="glass-panel space-y-3 p-6">
+              <div className="flex items-center gap-2 text-slate-300">
+                <Shield className="h-4 w-4" />
+                <p className="text-xs uppercase tracking-[0.25em]">Spoiler Safe</p>
+              </div>
+              <p className="text-sm text-slate-200">
+                Values stay hidden here. You will only reveal answers during Tend sessions or inside a dossier.
+              </p>
+              <p className="text-xs text-slate-500">
+                Keys are visible so you know what to expect, but answers stay frosted until you choose to view them.
+              </p>
+            </div>
+          </section>
         )}
-      </Card>
+
+        {currentProfileId ? (
+          <Card className="glass-panel p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Thirsty Growths</h2>
+                <p className="text-sm text-slate-400">{items.length} ready to tend.</p>
+              </div>
+              <span className="pill bg-emerald-500/15 text-emerald-300">Tend</span>
+            </div>
+
+            {items.length === 0 ? (
+              <p className="text-sm text-slate-400">Nothing is thirsty right now.</p>
+            ) : (
+              <ul className="grid gap-3 md:grid-cols-2">
+                {items.map((item: ReviewItem) => (
+                  <li
+                    key={item.id}
+                    data-testid={`review-item-${item.id}`}
+                    className="rounded-2xl border border-white/10 bg-slate-900/40 p-4 backdrop-blur"
+                  >
+                    <div className="space-y-2">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{item.key}</p>
+                      <div className="rounded-xl border border-white/5 bg-slate-800/70 p-3 text-sm text-slate-400">
+                        Hidden until you Tend
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        {item.concept_name} · {item.collection_name}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        ) : null}
+      </div>
     </main>
   );
 }
 
-function RichValue({ item }: { item: ReviewItem }) {
-  const isMedia = item.input_type?.toLowerCase() === "image";
-
-  if (isMedia) {
-    const safeSrc = getSafeImageUrl(item.value);
-
-    if (!safeSrc) {
-      return <p className="text-sm text-slate-200 break-all">{item.value}</p>;
-    }
-
-    return (
-      <div className="space-y-2">
-        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-          <img src={safeSrc} alt={item.key} className="h-36 w-full object-cover" loading="lazy" />
-        </div>
-        <p className="text-sm text-slate-200 break-all">{item.value}</p>
-      </div>
-    );
-  }
-  return <p className="text-sm text-slate-200 break-all">{item.value}</p>;
-}
-
-function getSafeImageUrl(rawUrl: string): string | null {
-  try {
-    const baseOrigin = typeof window !== "undefined" ? window.location.origin : undefined;
-    const url = new URL(rawUrl, baseOrigin);
-
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return null;
-    }
-
-    const allowedOrigins = new Set<string>();
-
-    if (typeof window !== "undefined") {
-      allowedOrigins.add(window.location.origin);
-    }
-
-    try {
-      const api = apiBase();
-      if (api) {
-        allowedOrigins.add(new URL(api).origin);
-      }
-    } catch {
-      // ignore invalid api base
-    }
-
-    if (!allowedOrigins.has(url.origin)) {
-      return null;
-    }
-
-    return url.toString();
-  } catch {
-    return null;
-  }
-}

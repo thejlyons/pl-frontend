@@ -9,6 +9,7 @@ import {
   ScrollRestoration,
   useLocation,
 } from "react-router";
+import { Library, Sprout, Settings } from "lucide-react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -34,11 +35,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#020617" />
+        <meta name="theme-color" content="#080e1c" />
         <Meta />
         <Links />
       </head>
-      <body className="bg-slate-950 text-slate-100">
+      <body className="bg-[var(--color-glass-bg)] text-slate-100">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -58,9 +59,9 @@ export default function App() {
 
   return (
     <ProfileProvider>
-      <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="min-h-screen bg-[var(--color-glass-bg)] text-slate-100">
         <TopBar />
-        <div className="pb-24">
+        <div className="pb-28">
           <Outlet />
         </div>
         <BottomNav />
@@ -84,38 +85,40 @@ function TopBar() {
   }
 
   return (
-    <div className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 px-4 py-3 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 text-sm">
-        <div className="flex items-center gap-2 text-slate-300">
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Profile</span>
-          <select
-            data-testid="profile-select"
-            value={currentProfileId ?? ""}
-            onChange={(e) => setCurrentProfileId(e.target.value)}
-            className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
-            disabled={!profiles.length}
-          >
-            {profiles.length === 0 ? <option value="">No profiles</option> : null}
-            {profiles.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            data-testid="profile-new"
-            onClick={handleCreate}
-            className="rounded-lg border border-emerald-700 bg-emerald-900/60 px-3 py-2 text-emerald-100 hover:border-emerald-500"
-          >
-            New
-          </button>
-        </div>
-        <div className="flex items-center gap-3 text-xs text-slate-400">
-          <span className="pill bg-emerald-500/15 text-emerald-300">Library</span>
-          <a href="/settings" className="underline decoration-emerald-400 underline-offset-4">
-            Settings
-          </a>
+    <div className="sticky top-0 z-40 px-4 pt-3 pb-3">
+      <div className="glass-navbar mx-auto max-w-5xl rounded-3xl px-5 py-3.5 shadow-lg">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2 text-slate-300">
+            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Profile</span>
+            <select
+              data-testid="profile-select"
+              value={currentProfileId ?? ""}
+              onChange={(e) => setCurrentProfileId(e.target.value)}
+              className="glass-input rounded-2xl border border-white/10 bg-slate-900/60 px-3 py-2 text-slate-100 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
+              disabled={!profiles.length}
+            >
+              {profiles.length === 0 ? <option value="">No profiles</option> : null}
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              data-testid="profile-new"
+              onClick={handleCreate}
+              className="glass-button-primary rounded-2xl px-3 py-2 text-sm font-semibold text-slate-900 hover:shadow-xl"
+            >
+              New
+            </button>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <span className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20">Library</span>
+            <a href="/settings" className="text-emerald-300 hover:text-emerald-200 transition-colors">
+              Settings
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -125,29 +128,34 @@ function TopBar() {
 function BottomNav() {
   const location = useLocation();
   const items = [
-    { href: "/", label: "Library", icon: "📚" },
-    { href: "/garden", label: "Garden", icon: "🪴" },
-    { href: "/settings", label: "Settings", icon: "⚙️" },
+    { href: "/", label: "Library", icon: Library },
+    { href: "/garden", label: "Garden", icon: Sprout },
+    { href: "/settings", label: "Settings", icon: Settings },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-800 bg-slate-900/90 backdrop-blur px-4 py-2">
-      <div className="mx-auto flex max-w-4xl items-center justify-between text-sm font-medium">
-        {items.map((item) => {
-          const active = location.pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={`flex flex-col items-center gap-1 rounded-xl px-4 py-2 transition ${
-                active ? "bg-emerald-500/15 text-emerald-300" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              <span aria-hidden>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-3">
+      <div className="glass-navbar mx-auto max-w-4xl rounded-3xl px-2 py-2 shadow-lg">
+        <div className="flex items-center justify-between text-sm font-medium">
+          {items.map((item) => {
+            const active = location.pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={`flex flex-1 flex-col items-center gap-1.5 rounded-2xl px-4 py-2.5 transition-all duration-200 ${
+                  active 
+                    ? "bg-emerald-400/20 text-emerald-300 shadow-lg shadow-emerald-500/10" 
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                }`}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                <span className="text-xs">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

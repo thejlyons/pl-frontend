@@ -41,29 +41,29 @@ export default function Home() {
   const isOk = data.status?.toLowerCase() === "ok";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
-      <section className="w-full max-w-md rounded-3xl bg-white/80 backdrop-blur shadow-xl border border-slate-200 dark:bg-slate-900/80 dark:border-slate-800 p-6 space-y-4">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+    <main className="min-h-screen bg-gradient-to-br from-[var(--color-glass-bg)] via-slate-900 to-[var(--color-glass-bg)] flex items-center justify-center p-4">
+      <section className="glass-card w-full max-w-md p-6 space-y-4">
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
           Backend health
         </p>
         <h1
           className={`text-4xl font-bold ${
-            isOk ? "text-emerald-600" : "text-rose-600"
+            isOk ? "text-emerald-400" : "text-rose-400"
           }`}
         >
           {data.status}
         </h1>
         {data.time && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-slate-300">
             Server time: {data.time}
           </p>
         )}
         {data.detail && (
-          <p className="text-sm text-amber-700 dark:text-amber-400">
+          <p className="text-sm text-amber-400">
             {data.detail}
           </p>
         )}
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-slate-400">
           This page fetches `/health` from the Go API at startup. Configure a
           different backend with the `API_BASE_URL` environment variable.
         </p>

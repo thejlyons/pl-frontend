@@ -60,7 +60,7 @@ export default function Dossier() {
 
   if (!concept) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 pb-14 pt-8 text-slate-50">
+      <main className="min-h-screen bg-gradient-to-br from-[var(--color-glass-bg)] via-slate-900 to-[var(--color-glass-bg)] detached-content text-slate-50">
         <div className="mx-auto flex max-w-5xl flex-col gap-6">
           <PageHeader title="Dossier" subtitle="We couldn't find that concept." />
           <Card className="glass-panel p-6 space-y-3">
@@ -73,7 +73,7 @@ export default function Dossier() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 pb-14 pt-8 text-slate-50">
+    <main className="min-h-screen bg-gradient-to-br from-[var(--color-glass-bg)] via-slate-900 to-[var(--color-glass-bg)] detached-content text-slate-50">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <PageHeader
           title={`${concept.name} Dossier`}
@@ -86,7 +86,7 @@ export default function Dossier() {
             <div className="flex items-center gap-3 text-slate-200">
               <Sprout className="h-6 w-6 text-emerald-300" />
               <div>
-                <p className="pill bg-emerald-500/15 text-emerald-300">Dossier</p>
+                <p className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20">Dossier</p>
                 <h2 className="text-xl font-semibold text-white">{headline}</h2>
                 {collection ? (
                   <p className="text-sm text-slate-400">Collection: {collection.name}</p>
@@ -98,8 +98,8 @@ export default function Dossier() {
               your shoulder.
             </p>
             <div className="flex flex-wrap gap-2 text-xs text-slate-400">
-              <span className="pill bg-slate-800 text-slate-200">Anti-spoiler mode</span>
-              <span className="pill bg-emerald-500/15 text-emerald-300">Per-fact reveal</span>
+              <span className="pill bg-slate-800/60 text-slate-200 border border-white/10">Anti-spoiler mode</span>
+              <span className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20">Per-fact reveal</span>
             </div>
           </div>
 
@@ -113,7 +113,7 @@ export default function Dossier() {
             </p>
             <Link
               to="/review"
-              className="inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200 hover:border-emerald-400"
+              className="glass-button inline-flex w-fit items-center gap-2 rounded-2xl px-4 py-2 text-xs font-semibold text-emerald-200 hover:text-emerald-100 transition-all duration-200"
             >
               Tend this concept
             </Link>
@@ -136,7 +136,7 @@ export default function Dossier() {
                 return (
                   <li
                     key={fact.id}
-                    className="rounded-2xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur"
+                    className="rounded-2xl border border-white/5 bg-slate-900/50 p-4 backdrop-blur-xl shadow-lg hover:border-white/10 transition-all duration-200"
                     data-testid={`dossier-fact-${fact.id}`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -155,7 +155,7 @@ export default function Dossier() {
                         type="button"
                         onClick={() => setRevealed((prev) => ({ ...prev, [fact.id]: !isRevealed }))}
                         data-testid={`reveal-toggle-${fact.id}`}
-                        className="rounded-lg border border-white/10 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-100 hover:border-emerald-400"
+                        className="glass-button rounded-2xl px-3 py-2 text-xs font-semibold text-slate-100 hover:text-white transition-all duration-200"
                       >
                         <div className="flex items-center gap-2">
                           {isRevealed ? (
@@ -209,7 +209,7 @@ function FactReveal({
         <button
           type="button"
           onClick={onToggle}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-slate-800/80 px-3 py-1 text-xs font-semibold text-slate-100 hover:border-emerald-400"
+          className="glass-button inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-semibold text-slate-100 hover:text-white transition-all duration-200"
         >
           {isRevealed ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
           <span>{isRevealed ? "Hide" : "Reveal"}</span>
@@ -231,7 +231,7 @@ function FactReveal({
       <button
         type="button"
         onClick={onToggle}
-        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-slate-800/80 px-3 py-1 text-xs font-semibold text-slate-100 hover:border-emerald-400"
+        className="glass-button inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-semibold text-slate-100 hover:text-white transition-all duration-200"
       >
         {isRevealed ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
         <span>{isRevealed ? "Hide" : "Reveal"}</span>

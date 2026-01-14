@@ -12,8 +12,8 @@ export function PageHeader({
 }) {
   return (
     <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="space-y-1">
-        <p className="pill bg-emerald-500/10 text-emerald-300">Perennial</p>
+      <div className="space-y-2">
+        <p className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20 inline-block">Perennial</p>
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold text-white">{title}</h1>
           {subtitle ? <p className="text-slate-400">{subtitle}</p> : null}
@@ -41,7 +41,7 @@ export function OutlineButton({
     <Link
       to={to}
       data-testid={dataTestId}
-      className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 hover:border-emerald-500 hover:text-white"
+      className="inline-flex items-center gap-2 glass-button rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-200 hover:text-white transition-all duration-200"
     >
       {children}
     </Link>

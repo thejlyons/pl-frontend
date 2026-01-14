@@ -327,7 +327,7 @@ export default function Finder() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-10 pt-6">
+    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 detached-content">
       <PageHeader
         title="Library"
         subtitle="Capture concepts, attach facts, prune what no longer grows."
@@ -335,7 +335,7 @@ export default function Finder() {
           <button
             type="button"
             onClick={scrollToCreate}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400"
+            className="glass-button-primary inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200"
           >
             <span className="text-lg" aria-hidden>
               +
@@ -346,18 +346,18 @@ export default function Finder() {
       />
 
       <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-        <span className="pill bg-slate-800 text-slate-200">Mobile-first</span>
-        <span className="pill bg-emerald-500/15 text-emerald-300">Dark mode</span>
-        <Link to="/garden" data-testid="nav-garden" className="underline decoration-emerald-400 underline-offset-4">
+        <span className="pill bg-slate-800/60 text-slate-200 border border-white/10">Mobile-first</span>
+        <span className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20">Dark mode</span>
+        <Link to="/garden" data-testid="nav-garden" className="text-emerald-300 hover:text-emerald-200 transition-colors">
           View Garden
         </Link>
-        <Link to="/review" className="underline decoration-emerald-400 underline-offset-4">
+        <Link to="/review" className="text-emerald-300 hover:text-emerald-200 transition-colors">
           Start Review
         </Link>
       </div>
 
       {message ? (
-        <div className="rounded-xl border border-emerald-700/40 bg-emerald-900/40 px-4 py-3 text-sm text-emerald-100">
+        <div className="rounded-2xl border border-emerald-700/40 bg-emerald-900/20 backdrop-blur-xl px-4 py-3 text-sm text-emerald-100">
           {message}
         </div>
       ) : null}
@@ -375,7 +375,7 @@ export default function Finder() {
                 data-testid="collection-name"
                 value={collectionName}
                 onChange={(e) => setCollectionName(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                 placeholder="Botany"
                 required
               />
@@ -386,7 +386,7 @@ export default function Finder() {
                 data-testid="collection-parent"
                 value={parentId}
                 onChange={(e) => setParentId(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
               >
                 <option value="">None</option>
                 {collections.map((c) => (
@@ -399,7 +399,7 @@ export default function Finder() {
             <button
               data-testid="submit-collection"
               type="submit"
-              className="w-full rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+              className="glass-button-primary w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200"
             >
               Create Collection
             </button>
@@ -418,7 +418,7 @@ export default function Finder() {
                 data-testid="concept-collection"
                 value={conceptCollection}
                 onChange={(e) => setConceptCollection(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                 required
               >
                 <option value="" disabled>
@@ -436,7 +436,7 @@ export default function Finder() {
               <select
                 value={conceptBlueprint}
                 onChange={(e) => applyBlueprint(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
               >
                 <option value="custom">Custom</option>
                 {data.blueprints.map((bp) => (
@@ -452,7 +452,7 @@ export default function Finder() {
                 data-testid="concept-name"
                 value={conceptName}
                 onChange={(e) => setConceptName(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                 placeholder="Fern"
                 required
               />
@@ -463,14 +463,14 @@ export default function Finder() {
                 data-testid="concept-kind"
                 value={conceptKind}
                 onChange={(e) => setConceptKind(e.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none disabled:opacity-60"
+                className="glass-input rounded-2xl px-4 py-2.5 text-slate-100 disabled:opacity-60"
                 placeholder="Plant"
                 required
                 disabled={conceptBlueprint !== "custom"}
               />
             </label>
             {factFields.length > 0 ? (
-              <div className="md:col-span-2 space-y-3 rounded-xl border border-emerald-700/40 bg-emerald-900/20 p-4">
+              <div className="md:col-span-2 space-y-3 rounded-2xl border border-emerald-700/40 bg-emerald-900/20 backdrop-blur-xl p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">Facts</p>
                 <div className="grid gap-3 md:grid-cols-2">
                   {factFields.map((field, idx) => (
@@ -483,7 +483,7 @@ export default function Finder() {
                             prev.map((f, i) => (i === idx ? { ...f, value: e.target.value } : f))
                           )
                         }
-                        className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                        className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                         placeholder="Type answer"
                         required
                       />
@@ -496,7 +496,7 @@ export default function Finder() {
               <button
                 data-testid="submit-concept"
                 type="submit"
-                className="w-full rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400 md:w-auto"
+                className="glass-button-primary w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200 md:w-auto"
               >
                 Create Concept
               </button>
@@ -517,7 +517,7 @@ export default function Finder() {
                     setFactConcept(e.target.value);
                     setActiveConceptId(e.target.value);
                   }}
-                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                  className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                   required
                 >
                   <option value="" disabled>
@@ -536,7 +536,7 @@ export default function Finder() {
                   data-testid="fact-key"
                   value={factKey}
                   onChange={(e) => setFactKey(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                  className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                   placeholder="Label (e.g., Flag)"
                   required
                 />
@@ -546,7 +546,7 @@ export default function Finder() {
                 <select
                   value={factInputType}
                   onChange={(e) => setFactInputType(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                  className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                 >
                   <option value="text">Text</option>
                   <option value="image">Image</option>
@@ -558,7 +558,7 @@ export default function Finder() {
                   data-testid="fact-value"
                   value={factValue}
                   onChange={(e) => setFactValue(e.target.value)}
-                  className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-emerald-400 focus:outline-none"
+                  className="glass-input rounded-2xl px-4 py-2.5 text-slate-100"
                   placeholder="https://..."
                   required
                 />
@@ -567,7 +567,7 @@ export default function Finder() {
                 <button
                   data-testid="submit-fact"
                   type="submit"
-                  className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+                  className="glass-button-primary rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200"
                 >
                   Create Fact
                 </button>
@@ -590,12 +590,12 @@ export default function Finder() {
               <li
                 key={c.id}
                 data-testid={`collection-item-${c.id}`}
-                className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-slate-100"
+                className="rounded-2xl border border-white/5 bg-slate-900/50 px-4 py-3 text-slate-100 backdrop-blur-xl shadow-lg hover:border-white/10 transition-all duration-200"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">{c.name}</span>
                   {c.parent_id ? (
-                    <span className="pill bg-slate-800 text-slate-300">Nested</span>
+                    <span className="pill bg-slate-800/60 text-slate-300 border border-white/10">Nested</span>
                   ) : null}
                 </div>
               </li>
@@ -617,10 +617,10 @@ export default function Finder() {
                 <li
                   key={c.id}
                   data-testid={`concept-item-${c.id}`}
-                  className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 ${
+                  className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-all duration-200 ${
                     isActive
-                      ? "border-emerald-500/60 bg-emerald-950"
-                      : "border-slate-800 bg-slate-900/60 hover:border-emerald-600/40"
+                      ? "border-emerald-500/60 bg-emerald-950/60 shadow-lg shadow-emerald-500/10"
+                      : "border-white/5 bg-slate-900/50 backdrop-blur-xl hover:border-emerald-600/40 shadow-lg"
                   }`}
                 >
                   <button
@@ -632,11 +632,11 @@ export default function Finder() {
                     <span className="text-sm text-slate-400">{c.kind}</span>
                   </button>
                   <div className="flex items-center gap-2">
-                    <span className="pill bg-slate-800 text-slate-200">{c.kind}</span>
+                    <span className="pill bg-slate-800/60 text-slate-200 border border-white/10">{c.kind}</span>
                     <button
                       type="button"
                       data-testid={`delete-concept-${c.id}`}
-                      className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-200 hover:border-rose-400 hover:text-rose-200"
+                      className="glass-button rounded-2xl px-2 py-1 text-sm text-slate-200 hover:text-rose-200 hover:border-rose-400/50 transition-all duration-200"
                       onClick={() => handleDeleteConcept(c.id)}
                       aria-label={`Delete ${c.name}`}
                     >
@@ -657,7 +657,7 @@ export default function Finder() {
             <p className="text-sm text-slate-400">Showing facts for the selected concept.</p>
           </div>
           {activeConceptId ? (
-            <span className="pill bg-emerald-500/15 text-emerald-300">{facts.length} items</span>
+            <span className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20">{facts.length} items</span>
           ) : null}
         </div>
 
@@ -671,7 +671,7 @@ export default function Finder() {
               <li
                 key={f.id}
                 data-testid={`fact-item-${f.id}`}
-                className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4"
+                className="flex flex-col gap-3 rounded-2xl border border-white/5 bg-slate-900/50 p-4 backdrop-blur-xl shadow-lg hover:border-white/10 transition-all duration-200"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -681,7 +681,7 @@ export default function Finder() {
                   <button
                     type="button"
                     data-testid={`delete-fact-${f.id}`}
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-200 hover:border-rose-400 hover:text-rose-200"
+                    className="glass-button rounded-2xl px-2 py-1 text-sm text-slate-200 hover:text-rose-200 hover:border-rose-400/50 transition-all duration-200"
                     onClick={() => handleDeleteFact(f.id)}
                     aria-label={`Delete fact ${f.key}`}
                   >
@@ -711,7 +711,7 @@ function FactValue({ fact }: { fact: Fact }) {
       </p>
       <Link
         to={`/concepts/${fact.concept_id}`}
-        className="inline-flex w-fit items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200 hover:border-emerald-400"
+        className="glass-button inline-flex w-fit items-center gap-2 rounded-2xl px-4 py-2 text-xs font-semibold text-emerald-200 hover:text-emerald-100 transition-all duration-200"
       >
         Open Dossier
       </Link>

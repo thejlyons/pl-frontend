@@ -56,7 +56,7 @@ export default function Settings() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 pb-12 pt-6 text-slate-100">
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 detached-content text-slate-100">
       <PageHeader
         title="Settings"
         subtitle="PWA install readiness and theme preferences."
@@ -64,7 +64,7 @@ export default function Settings() {
 
       <Card className="space-y-4 p-6">
         <div className="space-y-1">
-          <p className="pill bg-emerald-500/15 text-emerald-300">PWA</p>
+          <p className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20 inline-block">PWA</p>
           <h2 className="text-xl font-semibold text-white">Install Perennial</h2>
           <p className="text-sm text-slate-400">
             Add Perennial to your home screen for a fullscreen, offline-friendly experience.
@@ -79,7 +79,7 @@ export default function Settings() {
 
       <Card className="space-y-4 p-6">
         <div className="space-y-2">
-          <p className="pill bg-emerald-500/15 text-emerald-300">Scheduling</p>
+          <p className="pill bg-emerald-500/20 text-emerald-300 border border-emerald-400/20 inline-block">Scheduling</p>
           <h2 className="text-xl font-semibold text-white">Tuning Dashboard</h2>
           <p className="text-sm text-slate-400">
             Adjust how fast cards advance. Higher ease or speed means longer jumps between reviews.
@@ -125,7 +125,7 @@ export default function Settings() {
             </label>
           </div>
 
-          <div className="rounded-xl border border-emerald-800 bg-emerald-950/50 p-4 text-sm text-emerald-100">
+          <div className="rounded-2xl border border-emerald-700/40 bg-emerald-950/40 backdrop-blur-xl p-4 text-sm text-emerald-100 shadow-lg">
             <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">Simulation</p>
             <p className="font-semibold text-white">Path: {simulatedPath}</p>
             <p className="text-slate-400">Sequence: Good → Easy → Good → Easy (days between reviews)</p>
@@ -135,7 +135,7 @@ export default function Settings() {
             <button
               type="submit"
               disabled={saving || !currentProfile}
-              className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400 disabled:opacity-60"
+              className="glass-button-primary rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200 disabled:opacity-60"
             >
               {saving ? "Saving..." : "Save tuning"}
             </button>
@@ -147,10 +147,10 @@ export default function Settings() {
       <Card className="space-y-3 p-6">
         <h2 className="text-xl font-semibold text-white">Theme</h2>
         <p className="text-sm text-slate-400">
-          Perennial runs in dark mode only to keep focus on the garden.
+          Perennial uses an iOS 26-inspired liquid glass design for an elegant, immersive experience.
         </p>
         <p className="text-sm text-slate-300">
-          Background: #020617 · Accent: Emerald 400.
+          Background: Deep space gradient · Accent: Emerald glass effects · Detached components with enhanced blur.
         </p>
       </Card>
     </main>

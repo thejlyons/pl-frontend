@@ -87,7 +87,7 @@ export default function ReviewPlayer() {
 
   if (!currentProfileId) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-4 pb-12 pt-6 text-slate-100">
+      <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center detached-content text-slate-100">
         <Card className="w-full p-6 text-center">Select or create a profile to start reviewing.</Card>
       </main>
     );
@@ -98,21 +98,26 @@ export default function ReviewPlayer() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 pb-12 pt-6 text-slate-100">
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 detached-content text-slate-100">
       <PageHeader
         title="Review"
         subtitle="Type your answer to prove recall; media hints included."
         action={<OutlineButton to="/garden">← Queue</OutlineButton>}
       />
 
-      <Card className="space-y-5 p-5">
-        <div className="rounded-2xl border border-emerald-800 bg-emerald-950/60 p-5 shadow-inner">
+      <Card className="space-y-5 p-6">
+        <div className="rounded-2xl border border-emerald-700/40 bg-emerald-950/40 backdrop-blur-xl p-5 shadow-lg">
           <p className="text-sm uppercase tracking-[0.25em] text-emerald-300">Prompt</p>
           <div className="mt-2 space-y-2 text-xl font-semibold text-white">
             {isMedia ? (
-              <p>
-                Which concept has this <span className="text-emerald-300">{current.key.toLowerCase()}</span>?
-              </p>
+              <>
+                <p>
+                  Which concept has this <span className="text-emerald-300">{current.key.toLowerCase()}</span>?
+                </p>
+                <p className="text-sm font-normal text-emerald-200/80 italic">
+                  Type the concept name (e.g., "France"), not the URL
+                </p>
+              </>
             ) : (
               <p>
                 What is the <span className="text-emerald-300">{current.key}</span> of
@@ -143,8 +148,8 @@ export default function ReviewPlayer() {
                 data-testid="typed-answer-input"
                 value={typedAnswer}
                 onChange={(e) => setTypedAnswer(e.target.value)}
-                className={`rounded-xl border px-3 py-3 text-base font-semibold text-slate-100 shadow-inner focus:border-emerald-400 focus:outline-none ${
-                  result === "incorrect" ? "border-rose-500" : "border-slate-700"
+                className={`glass-input rounded-2xl px-4 py-3 text-base font-semibold ${
+                  result === "incorrect" ? "border-rose-500 ring-2 ring-rose-500/20" : ""
                 } ${result === "incorrect" ? "animate-shake" : ""}`}
                 placeholder={isMedia ? "Type the concept name" : "Type it..."}
                 disabled={isSubmitting}
@@ -155,7 +160,7 @@ export default function ReviewPlayer() {
               type="submit"
               data-testid="check-answer-btn"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400 disabled:opacity-60"
+              className="glass-button-primary w-full rounded-2xl px-4 py-3 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200 disabled:opacity-60"
             >
               Check Answer
             </button>
@@ -178,7 +183,7 @@ export default function ReviewPlayer() {
                 data-testid="rating-again"
                 disabled={isSubmitting}
                 onClick={() => handleRating("again")}
-                className="rounded-lg border border-rose-700 bg-rose-900/60 px-4 py-3 text-rose-100 hover:border-rose-500 disabled:opacity-60"
+                className="rounded-2xl border border-rose-700/50 bg-rose-900/40 backdrop-blur-xl px-4 py-3 text-rose-100 hover:border-rose-500 hover:shadow-lg shadow-rose-500/10 disabled:opacity-60 transition-all duration-200"
               >
                 Again
               </button>
@@ -187,7 +192,7 @@ export default function ReviewPlayer() {
                 data-testid="rating-hard"
                 disabled={isSubmitting}
                 onClick={() => handleRating("hard")}
-                className="rounded-lg border border-amber-700 bg-amber-900/60 px-4 py-3 text-amber-100 hover:border-amber-500 disabled:opacity-60"
+                className="rounded-2xl border border-amber-700/50 bg-amber-900/40 backdrop-blur-xl px-4 py-3 text-amber-100 hover:border-amber-500 hover:shadow-lg shadow-amber-500/10 disabled:opacity-60 transition-all duration-200"
               >
                 Hard
               </button>
@@ -196,7 +201,7 @@ export default function ReviewPlayer() {
                 data-testid="rating-good"
                 disabled={isSubmitting}
                 onClick={() => handleRating("good")}
-                className="rounded-lg border border-emerald-700 bg-emerald-900/60 px-4 py-3 text-emerald-100 hover:border-emerald-500 disabled:opacity-60"
+                className="rounded-2xl border border-emerald-700/50 bg-emerald-900/40 backdrop-blur-xl px-4 py-3 text-emerald-100 hover:border-emerald-500 hover:shadow-lg shadow-emerald-500/10 disabled:opacity-60 transition-all duration-200"
               >
                 Good
               </button>
@@ -205,7 +210,7 @@ export default function ReviewPlayer() {
                 data-testid="rating-easy"
                 disabled={isSubmitting}
                 onClick={() => handleRating("easy")}
-                className="rounded-lg border border-cyan-700 bg-cyan-900/60 px-4 py-3 text-cyan-100 hover:border-cyan-500 disabled:opacity-60"
+                className="rounded-2xl border border-cyan-700/50 bg-cyan-900/40 backdrop-blur-xl px-4 py-3 text-cyan-100 hover:border-cyan-500 hover:shadow-lg shadow-cyan-500/10 disabled:opacity-60 transition-all duration-200"
               >
                 Easy
               </button>
@@ -221,7 +226,7 @@ export default function ReviewPlayer() {
 
 function GardenTended() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-4 pb-12 pt-6 text-slate-100">
+    <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center detached-content text-slate-100">
       <Card className="w-full space-y-6 p-6 text-center">
         <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">All clear</p>
         <h1 className="text-3xl font-semibold text-white">Garden Tended</h1>
@@ -230,7 +235,7 @@ function GardenTended() {
         </p>
         <Link
           to="/"
-          className="inline-flex justify-center rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-900 shadow hover:bg-emerald-400"
+          className="glass-button-primary inline-flex justify-center rounded-2xl px-4 py-3 text-sm font-semibold text-slate-900 hover:shadow-xl transition-all duration-200"
         >
           Return to Collections
         </Link>

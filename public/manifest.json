@@ -3,9 +3,9 @@
   "short_name": "Perennial",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#020617",
-  "description": "Mobile-first garden of knowledge.",
+  "background_color": "#080e1c",
+  "theme_color": "#080e1c",
+  "description": "Mobile-first garden of knowledge with iOS 26 liquid glass design.",
   "icons": [
     {
       "src": "/icons/icon-192.png",
